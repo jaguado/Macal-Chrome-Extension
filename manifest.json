@@ -1,0 +1,16 @@
+{
+    "name": "Macal Magic Helper!",
+    "description": "Esta extensión agregará información util a los remates de Macal.cl",
+    "version": "0.1",
+    "manifest_version": 2,
+    "content_scripts": [
+      {
+        "matches": [
+          "https://www.macal.cl/*"
+        ],
+        "js": ["background.js"]
+      }
+    ],
+    "icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" },
+    "permissions": [ "webNavigation", "*://*/*" ]
+  }
