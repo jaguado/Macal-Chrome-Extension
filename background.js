@@ -5,14 +5,22 @@ if (check) {
   run();
 }
 
+function toCurrency(amount) {
+  return "$ " + formatNumber(amount);
+};
+
+function formatNumber(num) {
+  return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
+}
+
 function leftOnlyNumbers(obj) {
-  if(!obj)
+  if (!obj)
     return 0;
   return obj.replace(/\D/g, '');
 }
 
 function getRealPrice(price, fiscalValue = 0) {
-  if (fiscalValue<=0)
+  if (fiscalValue <= 0)
     return parseInt(price * 1.12 + 75000);
   else {
     return parseInt((price * 1.105) + (fiscalValue * 0.015) + 75000);
@@ -30,11 +38,11 @@ function run() {
   var engine = document.getElementsByClassName('especificacion')[7].lastElementChild.innerText;
   var transmision = document.getElementsByClassName('especificacion')[8].lastElementChild.innerText;
   var id = document.getElementsByClassName('especificacion')[9].lastElementChild.innerText;
-  var inspection = document.getElementsByClassName('sectionBtnEspecial').length> 0 ? "https://www.macal.cl" + document.getElementsByClassName('sectionBtnEspecial')[0].getElementsByTagName('a')[0].getAttribute('href') : null;
+  var inspection = document.getElementsByClassName('sectionBtnEspecial').length > 0 ? "https://www.macal.cl" + document.getElementsByClassName('sectionBtnEspecial')[0].getElementsByTagName('a')[0].getAttribute('href') : null;
   var price = leftOnlyNumbers(document.getElementsByClassName('minimoContenedor')[0].innerText);
   var dataLayer = eval(Array.from(document.querySelectorAll('script')).filter(s => s.innerText.includes("dataLayer ="))[0].innerHTML);
   var fiscalValue = leftOnlyNumbers(dataLayer[0].caracteristicas.split('/').filter(f => f.includes("Fiscal"))[0]);
-  
+
   var data = {
     "id": id,
     "brand": brand,
@@ -64,8 +72,34 @@ function run() {
   for (percentage = 0; percentage < 60; percentage += 10) {
     var tempPrice = data.price + data.price * (percentage / 100);
     var realPrice = getRealPrice(tempPrice, data.fiscalPrice);
-    data.simulatedPrices.push({percentage, realPrice});
+    data.simulatedPrices.push({
+      percentage,
+      realPrice
+    });
   }
 
   console.log(data);
+
+
+  //add info
+  var section = document.getElementsByClassName('detalleFicha')[0];
+  var title = document.createElement("div");
+  title.className = "col-xs-12";
+  title.innerHTML = "<center><b>Precios Finales</b></center><br />";
+  section.appendChild(title);
+  var table = document.createElement("div");
+  table.className="col-xs-12";
+  data.simulatedPrices.forEach(price => {
+    var row = document.createElement("div");
+    row.className="col-xs-4 especificacion";
+    var col1 = document.createElement("span");
+    col1.innerHTML = price.percentage + "%";
+    var col2 = document.createElement("span");
+    col2.innerHTML = toCurrency(price.realPrice);
+    row.appendChild(col1);
+    row.appendChild(col2);
+    table.appendChild(row);
+  });
+
+  section.appendChild(table);
 }
