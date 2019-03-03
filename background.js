@@ -69,7 +69,7 @@ function run() {
 
   //precios con comision, transferencia, etc...
   var percentage = 0;
-  for (percentage = 0; percentage < 60; percentage += 10) {
+  for (percentage = 0; percentage < 90; percentage += 10) {
     var tempPrice = data.price + data.price * (percentage / 100);
     var realPrice = getRealPrice(tempPrice, data.fiscalPrice);
     data.simulatedPrices.push({
@@ -85,7 +85,9 @@ function run() {
   var section = document.getElementsByClassName('detalleFicha')[0];
   var title = document.createElement("div");
   title.className = "col-xs-12";
-  title.innerHTML = "<center><b>Precios Finales</b></center><br />";
+  title.innerHTML += "<b>Información adicional <small>por JAMTech.cl</small></b><br />";
+  title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>Precio Fiscal</span><span>" + toCurrency(data.fiscalPrice) + "</span></div>";
+  title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>¿Muchos Kms?</span><span>" + data.muchosKms + "</span></div>";
   section.appendChild(title);
   var table = document.createElement("div");
   table.className="col-xs-12";
@@ -102,4 +104,10 @@ function run() {
   });
 
   section.appendChild(table);
+
+  var title2 = document.createElement("div");
+  title2.className = "col-xs-12";
+  title2.innerHTML += "<b>Otras caracteristicas:</b><br />";
+  title2.innerHTML += "<span>" + data.data.caracteristicas + "</span>";
+  section.appendChild(title2);
 }
