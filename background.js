@@ -6,7 +6,7 @@ if (check) {
 }
 
 function toCurrency(amount) {
-  return "$ " + formatNumber(amount);
+  return "$ " + formatNumber(parseInt(amount));
 };
 
 function formatNumber(num) {
@@ -20,11 +20,15 @@ function leftOnlyNumbers(obj) {
 }
 
 function getRealPrice(price, fiscalValue = 0) {
-  if (fiscalValue <= 0)
-    return parseInt(price * 1.12 + 75000);
+  if (fiscalValue < price)
+    return parseInt(price + getComission(price) + (price * 0.015) + 75000);
   else {
-    return parseInt((price * 1.105) + (fiscalValue * 0.015) + 75000);
+    return parseInt(price + getComission(price) + (fiscalValue * 0.015) + 75000);
   }
+}
+
+function getComission(price) {
+  return price * 0.105;
 }
 
 function run() {
@@ -59,7 +63,7 @@ function run() {
     "fiscalPrice": parseInt(fiscalValue),
     "data": dataLayer[0],
     "simulatedPrices": [],
-    "muchosKms": null
+    "muchosKms": false
   };
 
 
@@ -78,26 +82,27 @@ function run() {
     });
   }
 
-  console.log(data);
+  //console.log(data);
 
 
   //add info
   var section = document.getElementsByClassName('detalleFicha')[0];
   var title = document.createElement("div");
   title.className = "col-xs-12";
-  title.innerHTML += "<b>Información adicional <small>por JAMTech.cl</small></b><br /><br />";
+  title.innerHTML += "<b>Información adicional:</b><br /><br />";
   title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>Precio Fiscal</span><span>" + toCurrency(data.fiscalPrice) + "</span></div>";
-  title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>¿Muchos Kms?</span><span>" + data.muchosKms + "</span></div>";
+  title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>Comisi&oacute;n inicial</span><span>" + toCurrency(getComission(data.price)) + "</span></div>";
+  title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>¿Muchos Kms?</span><span>" + (data.muchosKms ? "SI" : "NO") + "</span></div>";
   section.appendChild(title);
   var table = document.createElement("div");
-  table.className="col-xs-12";
+  table.className = "col-xs-12";
   data.simulatedPrices.forEach(price => {
     var row = document.createElement("div");
-    row.className="col-xs-4 especificacion";
+    row.className = "col-xs-4 especificacion";
     var col1 = document.createElement("span");
-    col1.innerHTML = price.percentage + "%";
+    col1.innerHTML = price.percentage + "% adicional";
     var col2 = document.createElement("span");
-    col2.innerHTML = toCurrency(price.realPrice);
+    col2.innerHTML = toCurrency(price.realPrice) + "<br /><small>(" + toCurrency(getComission(data.price + data.price * (price.percentage / 100))) + ")</small>";
     row.appendChild(col1);
     row.appendChild(col2);
     table.appendChild(row);
@@ -110,4 +115,8 @@ function run() {
   title2.innerHTML += "<b>Otras caracteristicas:</b><br /><br />";
   title2.innerHTML += "<span>" + data.data.caracteristicas + "</span>";
   section.appendChild(title2);
+
+  var footer = document.createElement("span");
+  footer.innerHTML = "<br /><span class=\"pull-right\">JAMTech.cl</span>";
+  section.appendChild(footer);
 }
