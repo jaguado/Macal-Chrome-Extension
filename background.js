@@ -85,7 +85,7 @@ function run() {
   var section = document.getElementsByClassName('detalleFicha')[0];
   var title = document.createElement("div");
   title.className = "col-xs-12";
-  title.innerHTML += "<b>Información adicional <small>por JAMTech.cl</small></b><br />";
+  title.innerHTML += "<b>Información adicional <small>por JAMTech.cl</small></b><br /><br />";
   title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>Precio Fiscal</span><span>" + toCurrency(data.fiscalPrice) + "</span></div>";
   title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>¿Muchos Kms?</span><span>" + data.muchosKms + "</span></div>";
   section.appendChild(title);
@@ -107,7 +107,7 @@ function run() {
 
   var title2 = document.createElement("div");
   title2.className = "col-xs-12";
-  title2.innerHTML += "<b>Otras caracteristicas:</b><br />";
+  title2.innerHTML += "<b>Otras caracteristicas:</b><br /><br />";
   title2.innerHTML += "<span>" + data.data.caracteristicas + "</span>";
   section.appendChild(title2);
 }
