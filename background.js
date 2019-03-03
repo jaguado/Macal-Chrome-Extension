@@ -28,7 +28,7 @@ function getRealPrice(price, fiscalValue = 0) {
 }
 
 function getComission(price) {
-  return price * 0.105;
+  return price * 0.125;
 }
 
 function run() {
@@ -76,9 +76,11 @@ function run() {
   for (percentage = 0; percentage < 90; percentage += 10) {
     var tempPrice = data.price + data.price * (percentage / 100);
     var realPrice = getRealPrice(tempPrice, data.fiscalPrice);
+    var comission = getComission(tempPrice);
     data.simulatedPrices.push({
       percentage,
-      realPrice
+      realPrice,
+      comission
     });
   }
 
@@ -102,7 +104,7 @@ function run() {
     var col1 = document.createElement("span");
     col1.innerHTML = price.percentage + "% adicional";
     var col2 = document.createElement("span");
-    col2.innerHTML = toCurrency(price.realPrice) + "<br /><small>(" + toCurrency(getComission(data.price + data.price * (price.percentage / 100))) + ")</small>";
+    col2.innerHTML = toCurrency(price.realPrice) + "<br /><small>(" + toCurrency(price.comission) + ")</small>";
     row.appendChild(col1);
     row.appendChild(col2);
     table.appendChild(row);
