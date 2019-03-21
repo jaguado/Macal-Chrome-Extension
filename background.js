@@ -2,8 +2,22 @@
 
 var check = document.getElementsByClassName('detalleFicha ').length > 0;
 if (check) {
-  run();
+  runView();
 }
+
+var end=false;
+setTimeout(function(){
+  if(!end){
+    end=true;
+    var remate = document.getElementsByClassName('winner-mount').length > 0;
+    if(remate){
+      console.log('modo remate');
+      var lotes = document.getElementsByTagName("article");
+      console.log('lotes', lotes);
+    }
+  }
+}, 5000);
+
 
 function toCurrency(amount) {
   return "$ " + formatNumber(parseInt(amount));
@@ -28,24 +42,31 @@ function getRealPrice(price, fiscalValue = 0) {
 }
 
 function getComission(price) {
-  return price * 0.125;
+    return price * 0.125;
 }
 
-function run() {
-  var brand = document.getElementsByClassName('especificacion')[0].lastElementChild.innerText
-  var model = document.getElementsByClassName('especificacion')[1].lastElementChild.innerText;
-  var version = document.getElementsByClassName('especificacion')[2].lastElementChild.innerText;
-  var year = leftOnlyNumbers(document.getElementsByClassName('especificacion')[3].lastElementChild.innerText);
-  var kms = leftOnlyNumbers(document.getElementsByClassName('especificacion')[4].lastElementChild.innerText);
-  var traction = document.getElementsByClassName('especificacion')[5].lastElementChild.innerText;
-  var combustible = document.getElementsByClassName('especificacion')[6].lastElementChild.innerText;
-  var engine = document.getElementsByClassName('especificacion')[7].lastElementChild.innerText;
-  var transmision = document.getElementsByClassName('especificacion')[8].lastElementChild.innerText;
-  var id = document.getElementsByClassName('especificacion')[9].lastElementChild.innerText;
-  var inspection = document.getElementsByClassName('sectionBtnEspecial').length > 0 ? "https://www.macal.cl" + document.getElementsByClassName('sectionBtnEspecial')[0].getElementsByTagName('a')[0].getAttribute('href') : null;
-  var price = leftOnlyNumbers(document.getElementsByClassName('minimoContenedor')[0].innerText);
-  var dataLayer = eval(Array.from(document.querySelectorAll('script')).filter(s => s.innerText.includes("dataLayer ="))[0].innerHTML);
+function runView(doc) {
+  if(!doc)
+    doc = document;
+  var brand = doc.getElementsByClassName('especificacion')[0].lastElementChild.innerText
+  var model = doc.getElementsByClassName('especificacion')[1].lastElementChild.innerText;
+  var version = doc.getElementsByClassName('especificacion')[2].lastElementChild.innerText;
+  var year = leftOnlyNumbers(doc.getElementsByClassName('especificacion')[3].lastElementChild.innerText);
+  var kms = leftOnlyNumbers(doc.getElementsByClassName('especificacion')[4].lastElementChild.innerText);
+  var traction = doc.getElementsByClassName('especificacion')[5].lastElementChild.innerText;
+  var combustible = doc.getElementsByClassName('especificacion')[6].lastElementChild.innerText;
+  var engine = doc.getElementsByClassName('especificacion')[7].lastElementChild.innerText;
+  var transmision = doc.getElementsByClassName('especificacion')[8].lastElementChild.innerText;
+  var id = doc.getElementsByClassName('especificacion')[9].lastElementChild.innerText;
+  var inspection = doc.getElementsByClassName('sectionBtnEspecial').length > 0 ? "https://www.macal.cl" + doc.getElementsByClassName('sectionBtnEspecial')[0].getElementsByTagName('a')[0].getAttribute('href') : null;
+  var price = leftOnlyNumbers(doc.getElementsByClassName('minimoContenedor')[0].innerText);
+  var dataLayer = eval(Array.from(doc.querySelectorAll('script')).filter(s => s.innerText.includes("dataLayer ="))[0].innerHTML);
   var fiscalValue = leftOnlyNumbers(dataLayer[0].caracteristicas.split('/').filter(f => f.includes("Fiscal"))[0]);
+
+  var linkMultas = "https://www.sem.gob.cl/pcirc/buscar_multas.php?patente=" + id;
+
+  var maxPrice =  parseInt(fiscalValue) - 1000000;
+  maxPrice = maxPrice - getComission(maxPrice);
 
   var data = {
     "id": id,
@@ -61,9 +82,12 @@ function run() {
     "inspectionUrl": inspection,
     "price": parseInt(price),
     "fiscalPrice": parseInt(fiscalValue),
+    "maxPrice": maxPrice,
+    "maxPriceComission": getComission(maxPrice),
     "data": dataLayer[0],
     "simulatedPrices": [],
-    "muchosKms": false
+    "muchosKms": false,
+    "link_multas": linkMultas 
   };
 
 
@@ -73,52 +97,57 @@ function run() {
 
   //precios con comision, transferencia, etc...
   var percentage = 0;
-  for (percentage = 0; percentage < 90; percentage += 10) {
-    var tempPrice = data.price + data.price * (percentage / 100);
-    var realPrice = getRealPrice(tempPrice, data.fiscalPrice);
-    var comission = getComission(tempPrice);
+  for (percentage = 0; percentage < 200; percentage += 50) {
+    var price = data.price + data.price * (percentage / 100);
+    var realPrice = getRealPrice(price, data.fiscalPrice);
+    var comission = getComission(price);
     data.simulatedPrices.push({
       percentage,
       realPrice,
-      comission
+      comission,
+      price
     });
   }
 
-  //console.log(data);
+  console.log(data);
 
 
   //add info
-  var section = document.getElementsByClassName('detalleFicha')[0];
-  var title = document.createElement("div");
+  var section = doc.getElementsByClassName('detalleFicha')[0];
+  var title = doc.createElement("div");
   title.className = "col-xs-12";
-  title.innerHTML += "<b>Información adicional:</b><br /><br />";
+  title.innerHTML += "<br /><b>Información adicional:</b> ";
+  title.innerHTML += "<a target=\"_blank\" href=\"" + data.link_multas + "\">Multas no pagadas?</a><br /><br />";
   title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>Precio Fiscal</span><span>" + toCurrency(data.fiscalPrice) + "</span></div>";
   title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>Comisi&oacute;n inicial</span><span>" + toCurrency(getComission(data.price)) + "</span></div>";
   title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>¿Muchos Kms?</span><span>" + (data.muchosKms ? "SI" : "NO") + "</span></div>";
+  title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>Max Precio Puja</span><span><b>" + toCurrency(data.maxPrice) + "</b></span></div>";
+  title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>Comisi&oacute;n Precio Puja</span><span><b>" + toCurrency(data.maxPriceComission) + "</b></span></div>";
+  title.innerHTML += "<div class=\"col-xs-4 especificacion\"><span>Precio Final Puja</span><span><b>" + toCurrency(getRealPrice(data.maxPrice, data.fiscalPrice)) + "</b></span></div>";
   section.appendChild(title);
-  var table = document.createElement("div");
+  var table = doc.createElement("div");
   table.className = "col-xs-12";
   data.simulatedPrices.forEach(price => {
-    var row = document.createElement("div");
+    var row = doc.createElement("div");
     row.className = "col-xs-4 especificacion";
-    var col1 = document.createElement("span");
-    col1.innerHTML = price.percentage + "% adicional";
-    var col2 = document.createElement("span");
-    col2.innerHTML = toCurrency(price.realPrice) + "<br /><small>(" + toCurrency(price.comission) + ")</small>";
+    var col1 = doc.createElement("span");
+    col1.innerHTML = toCurrency(price.price) + "<small>(min + " + price.percentage  + " %)</small>";
+    var col2 = doc.createElement("span");
+    col2.innerHTML = "<b>" + toCurrency(price.realPrice) + "</b><br /><small>(" + toCurrency(price.comission) + ")</small>";
     row.appendChild(col1);
     row.appendChild(col2);
     table.appendChild(row);
   });
 
-  section.appendChild(table);
+  //section.appendChild(table);
 
-  var title2 = document.createElement("div");
+  var title2 = doc.createElement("div");
   title2.className = "col-xs-12";
   title2.innerHTML += "<b>Otras caracteristicas:</b><br /><br />";
   title2.innerHTML += "<span>" + data.data.caracteristicas + "</span>";
   section.appendChild(title2);
 
-  var footer = document.createElement("span");
+  var footer = doc.createElement("span");
   footer.innerHTML = "<br /><span class=\"pull-right\">JAMTech.cl</span>";
   section.appendChild(footer);
 }

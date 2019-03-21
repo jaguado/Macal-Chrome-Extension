@@ -1,8 +1,24 @@
 <!DOCTYPE html>
 <html>
-  <head>
-  </head>
-  <body>
-    <div>Welcome to Macal Magic Helper!</div>
-  </body>
+
+<head>
+  <script src="background.js" ></script>
+</head>
+
+<body>
+  <div>Welcome to Macal Magic Helper!</div>
+  <iframe id="main" src="https://www.macal.cl/Detalle/Vehiculo/42320"></iframe>
+</body>
+<script>
+  // Here's how you'd do this with plain old Javascript
+  const iframe = document.querySelector('#main');
+  iframe.onload = () => {
+    console.log('iframe is completely loaded');
+    console.log('offsetHeight', document.body.offsetHeight, iframe.contentWindow.document.body.offsetHeight);
+    iframe.style.height = document.body.offsetHeight + 'px';
+    run(null);
+    console.log('end run');
+  }
+</script>
+
 </html>

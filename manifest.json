@@ -6,7 +6,8 @@
     "content_scripts": [
       {
         "matches": [
-          "https://www.macal.cl/*"
+          "https://www.macal.cl/*",
+          "http://cliente-macal.s3-website-us-east-1.amazonaws.com/*"
         ],
         "js": ["background.js"]
       }
