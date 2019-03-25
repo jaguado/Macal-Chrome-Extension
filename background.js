@@ -33,15 +33,19 @@ function leftOnlyNumbers(obj) {
 }
 
 function getRealPrice(price, fiscalValue = 0) {
-  if (fiscalValue < price || fiscalValue == 0)
-    return parseInt(price + getComission(price) + (price * 0.015) + 75000);
+  if (price>fiscalValue)
+    return parseInt(price) + getComission(price) + getTransfPrice(price);
   else {
-    return parseInt(price + getComission(price) + (fiscalValue * 0.015) + 75000);
+    return parseInt(price) + getComission(price) + getTransfPrice(fiscalValue);
   }
 }
 
 function getComission(price) {
     return price * 0.125;
+}
+
+function getTransfPrice(price){
+    return parseInt(price * 0.015) + 75000;
 }
 
 function runView(doc) {
