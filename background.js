@@ -2,9 +2,10 @@ if(chrome.runtime.onInstalled!=null){
 chrome.runtime.onInstalled.addListener(function() {
     chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
       chrome.declarativeContent.onPageChanged.addRules([{
-        conditions: [new chrome.declarativeContent.PageStateMatcher({
-          pageUrl: {hostEquals: 'www.macal.cl'},
-        })
+        conditions: 
+        [
+          new chrome.declarativeContent.PageStateMatcher({ pageUrl: {hostEquals: 'www.macal.cl'}}),
+          new chrome.declarativeContent.PageStateMatcher({ pageUrl: {hostEquals: 'cliente-macal.s3-website-us-east-1.amazonaws.com'}})
         ],
             actions: [new chrome.declarativeContent.ShowPageAction()]
       }]);
