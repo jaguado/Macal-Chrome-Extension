@@ -1,19 +1,15 @@
 function calculate(amount){
-    if(amount>0){
-        
+    if(amount>0){    
         var comision=document.getElementById('comision');
         var transferencia=document.getElementById('transferencia');
         var total=document.getElementById('total');
-
-        
         var comPrice = getComission(amount);
         var transPrice = parseInt((amount * 0.015) + 75000);
+        var realPrice = comPrice + transPrice + parseInt(amount);
         comision.innerHTML = toCurrency(comPrice);
         transferencia.innerHTML = toCurrency(transPrice);
-        var realPrice = comPrice + transPrice + parseInt(amount);
         total.innerHTML = toCurrency(realPrice);
-
-        console.log('calculating comision, tranf, amount',comPrice, transPrice, amount, comPrice + transPrice + amount);
+        console.log('calculated comision, tranf, amount',comPrice, transPrice, amount, comPrice + transPrice + amount);
     }
 }
 
