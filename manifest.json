@@ -12,6 +12,18 @@
         "js": ["background.js"]
       }
     ],
+    "page_action": {
+      "default_popup": "window.html",
+      "default_icon": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+      }
+    },
     "icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" },
-    "permissions": [ "webNavigation", "*://*/*" ]
+    "permissions": [ "webNavigation", "declarativeContent", "*://*/*" ],
+    "background": {
+      "scripts": ["background.js"],
+      "persistent": false
+    }
   }

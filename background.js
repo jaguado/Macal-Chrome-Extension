@@ -1,23 +1,21 @@
-//TODO check DOM, find offers and add comission, transfer and other costs... Also try to find fiscal and comercial values...
+if(chrome.runtime.onInstalled!=null){
+chrome.runtime.onInstalled.addListener(function() {
+    chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
+      chrome.declarativeContent.onPageChanged.addRules([{
+        conditions: [new chrome.declarativeContent.PageStateMatcher({
+          pageUrl: {hostEquals: 'www.macal.cl'},
+        })
+        ],
+            actions: [new chrome.declarativeContent.ShowPageAction()]
+      }]);
+    });
+  });
+};
 
 var check = document.getElementsByClassName('detalleFicha ').length > 0;
 if (check) {
   runView();
 }
-
-var end=false;
-setTimeout(function(){
-  if(!end){
-    end=true;
-    var remate = document.getElementsByClassName('winner-mount').length > 0;
-    if(remate){
-      console.log('modo remate');
-      var lotes = document.getElementsByTagName("article");
-      console.log('lotes', lotes);
-    }
-  }
-}, 5000);
-
 
 function toCurrency(amount) {
   return "$ " + formatNumber(parseInt(amount));
@@ -34,7 +32,7 @@ function leftOnlyNumbers(obj) {
 }
 
 function getRealPrice(price, fiscalValue = 0) {
-  if (fiscalValue < price)
+  if (fiscalValue < price || fiscalValue == 0)
     return parseInt(price + getComission(price) + (price * 0.015) + 75000);
   else {
     return parseInt(price + getComission(price) + (fiscalValue * 0.015) + 75000);
@@ -62,10 +60,11 @@ function runView(doc) {
   var price = leftOnlyNumbers(doc.getElementsByClassName('minimoContenedor')[0].innerText);
   var dataLayer = eval(Array.from(doc.querySelectorAll('script')).filter(s => s.innerText.includes("dataLayer ="))[0].innerHTML);
   var fiscalValue = leftOnlyNumbers(dataLayer[0].caracteristicas.split('/').filter(f => f.includes("Fiscal"))[0]);
-
   var linkMultas = "https://www.sem.gob.cl/pcirc/buscar_multas.php?patente=" + id;
 
-  var maxPrice =  parseInt(fiscalValue) - 1000000;
+  const minEarn = 1000000;
+  var idealPrice = parseInt(fiscalValue) - (minEarn * 2); 
+  var maxPrice =  parseInt(fiscalValue) - minEarn;
   maxPrice = maxPrice - getComission(maxPrice);
 
   var data = {
@@ -82,6 +81,8 @@ function runView(doc) {
     "inspectionUrl": inspection,
     "price": parseInt(price),
     "fiscalPrice": parseInt(fiscalValue),
+    "idealPrice": idealPrice,
+    "idealPriceComission": getComission(idealPrice),
     "maxPrice": maxPrice,
     "maxPriceComission": getComission(maxPrice),
     "data": dataLayer[0],
